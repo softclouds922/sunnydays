@@ -217,9 +217,7 @@
       const token = getUrlToken();
       const url = `${SCRIPT_URL}?phone=${encodeURIComponent("1234")}&lat=${encodeURIComponent("456")}&lng=${encodeURIComponent("789")}&token=${encodeURIComponent(token)}`;
 
-      fetch(url, {
-        method: 'GET'
-      })
+      fetch(url, { method: 'GET' })
         .then(res => res.text())
         .then((data) => {
           if (data == "success") {
@@ -265,9 +263,8 @@
           const { latitude, longitude } = position.coords;
           const token = getUrlToken();
           const url = `${SCRIPT_URL}?phone=${encodeURIComponent(phone)}&lat=${encodeURIComponent(latitude)}&lng=${encodeURIComponent(longitude)}&token=${encodeURIComponent(token)}`;
-          fetch(url, {
-            method: 'GET'
-          })
+          fetch(url, { method: 'GET' })
+            .then(res => res.text())
             .then(() => {
               if (data == "success") {
                 statusDiv.innerText = LANG.success;
