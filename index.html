@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#4CAF50">
+  <link rel="icon" href="favicon.ico">
+  <title></title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      text-align: center;
+      background-color: #f5f5f5;
+    }
+
+    h1 {
+      font-size: 36px;
+      margin-bottom: 30px;
+    }
+
+    input,
+    button {
+      font-size: 22px;
+      padding: 15px;
+      margin: 15px auto;
+      width: 90%;
+      max-width: 400px;
+      display: block;
+      border-radius: 8px;
+      border: 1.5px solid #ccc;
+    }
+
+    button {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    #status {
+      margin-top: 25px;
+      color: green;
+      font-weight: bold;
+      font-size: 20px;
+    }
+
+    #ubicacion-alerta {
+      display: none;
+      background-color: #fff3cd;
+      color: #856404;
+      padding: 15px;
+      border: 1px solid #ffeeba;
+      border-radius: 10px;
+      margin: 20px auto;
+      width: 90%;
+      max-width: 400px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      text-align: left;
+      line-height: 1.4;
+    }
+
+    #messenger-warning {
+      background-color: #d1ecf1;
+      color: #0c5460;
+      padding: 20px;
+      border-radius: 10px;
+      margin: 20px auto;
+      max-width: 400px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      font-size: 18px;
+    }
+
+    #open-in-chrome {
+      margin-top: 15px;
+      padding: 15px 25px;
+      font-size: 20px;
+      background-color: #4285f4;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      width: 90%;
+      max-width: 400px;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+  </style>
+</head>
+
+<body>
+  <h1 id="title"></h1>
+
+  <div id="messenger-warning" style="display:none;">
+    <div id="messenger-text"></div>
+    <button id="open-in-chrome"></button>
+  </div>
+
+  <input type="text" id="phone" />
+  <button id="send-btn"></button>
+  <div id="status"></div>
+
+  <div id="ubicacion-alerta"></div>
+
+  <script>
+    const SCRIPT_URL = 'https://script.google.com/macros/s/XXX/exec';
+
+    /* ========= i18n ========= */
+
+    const I18N = {
+      es: {
+        pageTitle: 'Compartir ubicación',
+        title: '📍 Enviar mi ubicación',
+        phonePlaceholder: 'Tu número de teléfono',
+        send: 'Enviar ubicación',
+        sending: 'Enviando...',
+        sent: 'Enviado',
+        success: '✅ Ubicación enviada con éxito.',
+        errorSend: '❌ Error al enviar los datos.',
+        noPhone: 'Por favor, ingresa tu número de teléfono.',
+        noGeo: 'Tu navegador no soporta la geolocalización.',
+        geoFail: 'No se pudo obtener la ubicación. Asegúrate de permitir el acceso.',
+        messengerText:
+          'Esta página no funciona bien en el navegador de Messenger.<br/>Por favor, abre esta página en Google Chrome para enviar correctamente la ubicación.',
+        openChrome: 'Abrir en Google Chrome',
+        openChromeFail:
+          'No se pudo abrir Google Chrome automáticamente. Por favor, abre esta página manualmente en Google Chrome.',
+        iOSOpen:
+          'Por favor, abre esta página en la app Google Chrome o en un navegador fuera de Messenger.',
+        locationAlert: `
+          📍 <strong>Ubicación desactivada</strong><br><br>
+          Para acceder correctamente al contenido de esta página, por favor permite el acceso a tu ubicación.<br><br>
+          👉 Toca el ícono del candado 🔒 en la barra de direcciones, ve a <strong>“Permisos”</strong> y selecciona <strong>“Permitir ubicación”</strong>.<br><br>
+          Luego recarga esta página. 🙏
+        `
+      },
+
+      en: {
+        pageTitle: 'Share location',
+        title: '📍 Send my location',
+        phonePlaceholder: 'Your phone number',
+        send: 'Send location',
+        sending: 'Sending...',
+        sent: 'Sent',
+        success: '✅ Location sent successfully.',
+        errorSend: '❌ Failed to send data.',
+        noPhone: 'Please enter your phone number.',
+        noGeo: 'Your browser does not support geolocation.',
+        geoFail: 'Unable to get location. Please allow location access.',
+        messengerText:
+          'This page does not work well inside Messenger.<br/>Please open it in Google Chrome to send your location correctly.',
+        openChrome: 'Open in Google Chrome',
+        openChromeFail:
+          'Could not open Google Chrome automatically. Please open this page manually in Chrome.',
+        iOSOpen:
+          'Please open this page in Google Chrome or another browser outside Messenger.',
+        locationAlert: `
+          📍 <strong>Location disabled</strong><br><br>
+          To continue, please allow location access.<br><br>
+          👉 Tap the lock icon 🔒 in the address bar, go to <strong>Permissions</strong> and allow <strong>Location</strong>.<br><br>
+          Then reload this page. 🙏
+        `
+      }
+    };
+
+    function getLang() {
+      return (navigator.languages?.[0] || navigator.language || 'en')
+        .toLowerCase()
+        .split('-')[0];
+    }
+
+    const LANG = I18N[getLang()] || I18N.en;
+
+    /* ========= Logic ========= */
+
+    function isMessengerBrowser() {
+      const ua = navigator.userAgent || navigator.vendor || window.opera;
+      return /FBAN|FBAV|Messenger/i.test(ua);
+    }
+
+    function openInChrome() {
+      const url = window.location.href;
+      const intentUrl =
+        'intent://' +
+        location.host +
+        location.pathname +
+        location.search +
+        '#Intent;scheme=https;package=com.android.chrome;end';
+
+      if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+        alert(LANG.iOSOpen);
+        window.location.href = url;
+        return;
+      }
+
+      window.location.href = intentUrl;
+
+      setTimeout(() => {
+        alert(LANG.openChromeFail);
+      }, 2000);
+    }
+
+    function getUrlToken() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('token') || ''; // 如果没有 token，就为空
+    }
+
+    function sendLocation() {
+      const phone = document.getElementById('phone').value.trim();
+      const statusDiv = document.getElementById('status');
+      const alertaDiv = document.getElementById('ubicacion-alerta');
+      const btn = document.getElementById('send-btn');
+
+      statusDiv.innerText = '';
+      alertaDiv.style.display = 'none';
+
+      if (!phone) {
+        alert(LANG.noPhone);
+        return;
+      }
+
+      if (!navigator.geolocation) {
+        alert(LANG.noGeo);
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = LANG.sending;
+      btn.style.backgroundColor = '#999';
+
+      navigator.geolocation.getCurrentPosition(
+        position => {
+          const { latitude, longitude } = position.coords;
+          const token = getUrlToken();
+          fetch(SCRIPT_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              phone: phone,
+              lat: latitude,
+              lng: longitude,
+              token: token
+            })
+          })
+            .then(() => {
+              statusDiv.innerText = LANG.success;
+              btn.textContent = LANG.sent;
+              btn.style.backgroundColor = '#007bff';
+              btn.disabled = false;
+            })
+            .catch(() => {
+              statusDiv.innerText = LANG.errorSend;
+              btn.textContent = LANG.send;
+              btn.style.backgroundColor = '#4CAF50';
+              btn.disabled = false;
+            });
+        },
+        error => {
+          if (error.code === error.PERMISSION_DENIED) {
+            alertaDiv.style.display = 'block';
+          } else {
+            alert(LANG.geoFail);
+          }
+          btn.textContent = LANG.send;
+          btn.style.backgroundColor = '#4CAF50';
+          btn.disabled = false;
+        }
+      );
+    }
+
+    window.onload = () => {
+      // 设置 html lang
+      document.documentElement.lang = getLang();
+
+      // 设置浏览器标题
+      document.title = LANG.pageTitle;
+
+      document.getElementById('title').innerHTML = LANG.title;
+      document.getElementById('phone').placeholder = LANG.phonePlaceholder;
+      document.getElementById('send-btn').textContent = LANG.send;
+      document.getElementById('ubicacion-alerta').innerHTML = LANG.locationAlert;
+      document.getElementById('messenger-text').innerHTML = LANG.messengerText;
+      document.getElementById('open-in-chrome').textContent = LANG.openChrome;
+      if (isMessengerBrowser()) {
+        document.getElementById('messenger-warning').style.display = 'block';
+        document.getElementById('open-in-chrome').onclick = openInChrome;
+        document.getElementById('phone').style.display = 'none';
+        document.getElementById('send-btn').style.display = 'none';
+      } else {
+        document.getElementById('send-btn').onclick = sendLocation;
+      }
+    };
+  </script>
+</body>
+
+</html>
