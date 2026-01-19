@@ -280,7 +280,7 @@
             })
             .catch((e) => {
               console.log(e);
-              statusDiv.innerText = LANG.errorSend;
+              statusDiv.innerText = e;
               btn.textContent = LANG.send;
               btn.style.backgroundColor = '#4CAF50';
               btn.disabled = false;
