@@ -111,7 +111,7 @@
   <div id="ubicacion-alerta"></div>
 
   <script>
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyr8lRFPZ2aT_Kqyn-w2MJ0tg_aGibhzUVEPD_PzpWKqXkBFVSb4DmiXxR05yvS0OW9/exec';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwT3Eyle8b66Cle7EDQksj2ro5x5eKqMseyHMXvGXFK4bGNKuHTbY_uBjwoNyA0KCLP/exec';
 
     /* ========= i18n ========= */
 
@@ -218,31 +218,28 @@
 
     function test() {
       const token = getUrlToken();
-      fetch(SCRIPT_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          phone: "123",
-          lat: "456",
-          lng: "789",
-          token: token
-        })
+      const url = `${SCRIPT_URL}?phone=${encodeURIComponent("123")}&lat=${encodeURIComponent("456")}&lng=${encodeURIComponent("789")}&token=${encodeURIComponent(token)}`;
+
+      fetch(url, {
+        method: 'GET'
       })
-        .then(() => {
+        .then((res) => res.json()) // 如果 Apps Script 返回 JSON
+        .then((data) => {
+          // 这里根据返回内容更新状态
           statusDiv.innerText = LANG.success;
           btn.textContent = LANG.sent;
           btn.style.backgroundColor = '#007bff';
           btn.disabled = false;
         })
         .catch((e) => {
-          statusDiv.innerText = e
+          statusDiv.innerText = e;
           // statusDiv.innerText = LANG.errorSend;
           btn.textContent = LANG.send;
           btn.style.backgroundColor = '#4CAF50';
           btn.disabled = false;
         });
-
     }
+
     function sendLocation() {
       const phone = document.getElementById('phone').value.trim();
       const alertaDiv = document.getElementById('ubicacion-alerta');
@@ -267,16 +264,8 @@
         position => {
           const { latitude, longitude } = position.coords;
           const token = getUrlToken();
-          fetch(SCRIPT_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              phone: phone,
-              lat: latitude,
-              lng: longitude,
-              token: token
-            })
-          })
+          const url = `${SCRIPT_URL}?phone=${encodeURIComponent(phone)}&lat=${encodeURIComponent(latitude)}&lng=${encodeURIComponent(longitude)}&token=${encodeURIComponent(token)}`;
+          fetch(url)
             .then(() => {
               statusDiv.innerText = LANG.success;
               btn.textContent = LANG.sent;
