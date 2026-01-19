@@ -214,9 +214,12 @@
     const statusDiv = document.getElementById('status');
 
     function test() {
-      const token = getUrlToken();
-      const url = `${SCRIPT_URL}?phone=${encodeURIComponent("1234")}&lat=${encodeURIComponent("456")}&lng=${encodeURIComponent("789")}&token=${encodeURIComponent(token)}`;
+      sendData("123", 943205435, 454324536)
+    }
 
+    function sendData(phone, latitude, longitude) {
+      const token = getUrlToken();
+      const url = `${SCRIPT_URL}?phone=${encodeURIComponent(phone)}&lat=${encodeURIComponent(latitude)}&lng=${encodeURIComponent(longitude)}&token=${encodeURIComponent(token)}`;
       fetch(url, { method: 'GET' })
         .then(res => res.text())
         .then((data) => {
@@ -261,27 +264,7 @@
       navigator.geolocation.getCurrentPosition(
         position => {
           const { latitude, longitude } = position.coords;
-          const token = getUrlToken();
-          const url = `${SCRIPT_URL}?phone=${encodeURIComponent(phone)}&lat=${encodeURIComponent(latitude)}&lng=${encodeURIComponent(longitude)}&token=${encodeURIComponent(token)}`;
-          fetch(url, { method: 'GET' })
-            .then(res => res.text())
-            .then(() => {
-              if (data == "success") {
-                statusDiv.innerText = LANG.success;
-              } else {
-                statusDiv.innerText = data;
-              }
-              btn.textContent = LANG.sent;
-              btn.style.backgroundColor = '#007bff';
-              btn.disabled = false;
-            })
-            .catch((e) => {
-              console.log(e);
-              statusDiv.innerText = e;
-              btn.textContent = LANG.send;
-              btn.style.backgroundColor = '#4CAF50';
-              btn.disabled = false;
-            });
+          sendData(phone, latitude, longitude)
         },
         error => {
           if (error.code === error.PERMISSION_DENIED) {
