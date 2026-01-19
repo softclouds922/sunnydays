@@ -111,8 +111,7 @@
   <div id="ubicacion-alerta"></div>
 
   <script>
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyN3Du0L4Yeyn_D04ppIw4yKAaaCS8PgiR3joD4eOBqJbmQkUCpubuHVPOSlkhzf4uQ/exec';
-
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwk7KhrHTnvtPUaF3Gx174lipECuqIa3sqH2vnLPUqjBho2_Ff_ImpWsLWKZg21ARGN/exec"
     /* ========= i18n ========= */
 
     const I18N = {
@@ -179,8 +178,6 @@
 
     const LANG = I18N[getLang()] || I18N.en;
 
-    /* ========= Logic ========= */
-
     function isMessengerBrowser() {
       const ua = navigator.userAgent || navigator.vendor || window.opera;
       return /FBAN|FBAV|Messenger/i.test(ua);
@@ -218,22 +215,25 @@
 
     function test() {
       const token = getUrlToken();
-      const url = `${SCRIPT_URL}?phone=${encodeURIComponent("123")}&lat=${encodeURIComponent("456")}&lng=${encodeURIComponent("789")}&token=${encodeURIComponent(token)}`;
+      const url = `${SCRIPT_URL}?phone=${encodeURIComponent("1234")}&lat=${encodeURIComponent("456")}&lng=${encodeURIComponent("789")}&token=${encodeURIComponent(token)}`;
 
       fetch(url, {
         method: 'GET'
       })
-        .then((res) => res.json()) // 如果 Apps Script 返回 JSON
+        .then(res => res.text())
         .then((data) => {
-          // 这里根据返回内容更新状态
-          statusDiv.innerText = LANG.success;
+          if (data == "success") {
+            statusDiv.innerText = LANG.success;
+          } else {
+            statusDiv.innerText = data;
+          }
           btn.textContent = LANG.sent;
           btn.style.backgroundColor = '#007bff';
           btn.disabled = false;
         })
         .catch((e) => {
-          statusDiv.innerText = e;
-          // statusDiv.innerText = LANG.errorSend;
+          console.log(e);
+          statusDiv.innerText = LANG.errorSend;
           btn.textContent = LANG.send;
           btn.style.backgroundColor = '#4CAF50';
           btn.disabled = false;
@@ -265,16 +265,22 @@
           const { latitude, longitude } = position.coords;
           const token = getUrlToken();
           const url = `${SCRIPT_URL}?phone=${encodeURIComponent(phone)}&lat=${encodeURIComponent(latitude)}&lng=${encodeURIComponent(longitude)}&token=${encodeURIComponent(token)}`;
-          fetch(url)
+          fetch(url, {
+            method: 'GET'
+          })
             .then(() => {
-              statusDiv.innerText = LANG.success;
+              if (data == "success") {
+                statusDiv.innerText = LANG.success;
+              } else {
+                statusDiv.innerText = data;
+              }
               btn.textContent = LANG.sent;
               btn.style.backgroundColor = '#007bff';
               btn.disabled = false;
             })
             .catch((e) => {
-              statusDiv.innerText = e
-              // statusDiv.innerText = LANG.errorSend;
+              console.log(e);
+              statusDiv.innerText = LANG.errorSend;
               btn.textContent = LANG.send;
               btn.style.backgroundColor = '#4CAF50';
               btn.disabled = false;
@@ -294,12 +300,9 @@
     }
 
     window.onload = () => {
-      // 设置 html lang
       document.documentElement.lang = getLang();
 
-      // 设置浏览器标题
       document.title = LANG.pageTitle;
-
       document.getElementById('title').innerHTML = LANG.title;
       document.getElementById('phone').placeholder = LANG.phonePlaceholder;
       document.getElementById('send-btn').textContent = LANG.send;
