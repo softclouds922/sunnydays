@@ -213,12 +213,39 @@
       return params.get('token') || ''; // 如果没有 token，就为空
     }
 
+    const btn = document.getElementById('send-btn');
+    const statusDiv = document.getElementById('status');
+
+    function test() {
+      const token = getUrlToken();
+      fetch(SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          phone: "123",
+          lat: "456",
+          lng: "789",
+          token: token
+        })
+      })
+        .then(() => {
+          statusDiv.innerText = LANG.success;
+          btn.textContent = LANG.sent;
+          btn.style.backgroundColor = '#007bff';
+          btn.disabled = false;
+        })
+        .catch((e) => {
+          statusDiv.innerText = e
+          // statusDiv.innerText = LANG.errorSend;
+          btn.textContent = LANG.send;
+          btn.style.backgroundColor = '#4CAF50';
+          btn.disabled = false;
+        });
+
+    }
     function sendLocation() {
       const phone = document.getElementById('phone').value.trim();
-      const statusDiv = document.getElementById('status');
       const alertaDiv = document.getElementById('ubicacion-alerta');
-      const btn = document.getElementById('send-btn');
-
       statusDiv.innerText = '';
       alertaDiv.style.display = 'none';
 
@@ -256,8 +283,9 @@
               btn.style.backgroundColor = '#007bff';
               btn.disabled = false;
             })
-            .catch(() => {
-              statusDiv.innerText = LANG.errorSend;
+            .catch((e) => {
+              statusDiv.innerText = e
+              // statusDiv.innerText = LANG.errorSend;
               btn.textContent = LANG.send;
               btn.style.backgroundColor = '#4CAF50';
               btn.disabled = false;
