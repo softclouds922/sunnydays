@@ -94,7 +94,6 @@
       margin-right: auto;
     }
 
-    /* 复选框 + 文本容器 */
     .checkbox-container {
       display: flex;
       align-items: center;
@@ -111,7 +110,6 @@
       font-weight: 500;
     }
 
-    /* 隐藏复选框默认样式（可选） */
     .checkbox-container input[type="checkbox"] {
       width: 24px;
       height: 24px;
@@ -119,14 +117,12 @@
       cursor: pointer;
     }
 
-    /* 隐私条款链接 */
     .privacy-link {
       display: block;
       text-align: center;
       margin-top: 12px;
       font-size: 18px;
       color: #007BFF;
-      /* 蓝色突出 */
       text-decoration: none;
       font-weight: 500;
     }
@@ -135,10 +131,8 @@
       text-decoration: underline;
     }
 
-    /* 弹窗样式 */
     .modal {
       display: none;
-      /* 默认隐藏 */
       position: fixed;
       z-index: 1000;
       left: 0;
@@ -177,7 +171,6 @@
       font-size: 18px;
       line-height: 1.6;
       max-width: 320px;
-      /* 控制自然换行 */
       margin: 0 auto 20px;
     }
   </style>
@@ -252,7 +245,7 @@
 
     function getUrlToken() {
       const params = new URLSearchParams(window.location.search);
-      return params.get('token') || ''; // 如果没有 token，就为空
+      return params.get('token') || '';
     }
 
     const btn = document.getElementById('send-btn');
