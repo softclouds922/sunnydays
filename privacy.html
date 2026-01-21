@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f6fa;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 30px 40px;
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #222;
+            margin-bottom: 25px;
+            font-size: 1.8em;
+        }
+
+        ol {
+            font-size: 18px;
+            line-height: 1.7;
+        }
+
+        li {
+            margin-bottom: 15px;
+        }
+
+        a {
+            display: inline-block;
+            margin-top: 20px;
+            text-decoration: none;
+            color: #007BFF;
+            font-weight: 500;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        @media screen and (max-width: 500px) {
+            .container {
+                padding: 20px;
+                margin: 30px 15px;
+            }
+
+            ol {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1 id="title"></h1>
+
+        <ol>
+            <li id="li-collect"></li>
+            <li id="li-purpose"></li>
+            <li id="li-storage"></li>
+            <li id="li-share"></li>
+            <li id="li-rights"></li>
+        </ol>
+
+        <a href="#" id="backBtn"></a>
+    </div>
+    <script src="./language.js"></script>
+    <script>
+        function getLang() {
+            return (navigator.languages?.[0] || navigator.language || 'en')
+                .toLowerCase()
+                .split('-')[0];
+        }
+
+        const LANG = I18N[getLang()] || I18N.en;
+
+        document.title = LANG.privacyTitle
+        document.getElementById('title').innerText = LANG.privacyTitle
+        document.getElementById('li-collect').innerHTML = LANG.collect
+        document.getElementById('li-purpose').innerHTML = LANG.purpose
+        document.getElementById('li-storage').innerHTML = LANG.storage
+        document.getElementById('li-share').innerHTML = LANG.share
+        document.getElementById('li-rights').innerHTML = LANG.rights
+        document.getElementById('backBtn').innerText = LANG.back
+
+        const params = new URLSearchParams(window.location.search);
+        const token = params.get('token');
+
+        document.getElementById('backBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            if (window.history.length > 1) {
+                window.history.back()
+                return
+            }
+
+            if (window.close) {
+                window.close()
+                return
+            }
+
+            // 否则，兜底跳回 index.html
+            let url = 'index.html'
+            if (token) {
+                url += '?token=' + token
+            }
+            window.location.href = url
+        });
+    </script>
+</body>
+
+</html>
